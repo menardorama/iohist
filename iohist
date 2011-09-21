@@ -10,7 +10,7 @@ use Cwd 'abs_path';
 my ($SCRIPT_DIR,$SCRIPT_NAME) = ( abs_path($0) =~ /(.*\/)*(.*)$/);
 my $HEADER="SCRIPT: $SCRIPT_DIR$SCRIPT_NAME";
 my $hist_width = 20;
-my $hist_max = 37;
+my $hist_max = 35;
 
 #--------------------------------------------------------------------------
 # FUNCTION      usage
@@ -21,7 +21,7 @@ sub usage
 {
 print "$/**************************************************************************$/";
 print "Usage:$/";
-print " $SCRIPT_NAME device [sleep_time]$/";
+print " $SCRIPT_NAME device [--sleep <seconds>] [--rows <rows>] $/";
 print "$/";
 print "**************************************************************************$/";
 print "$/";
@@ -116,6 +116,25 @@ sub main
   if (($NUM_ARGS == 0)||($ARGV[0] =~ /-h/)||($ARGV[0] =~ /help/)){
       usage;
   }
+
+  my $device = $ARGV[0];
+  my $sleep_time = 1;
+
+  for (my $i = 1; $i < $NUM_ARGS; $i++) {
+    if ($ARGV[$i] =~ /--rows/){
+      $hist_max = $ARGV[$i+1];
+      $i+=1;
+    # }elsif ($ARGV[$i] =~ /--width/) {
+    #   $hist_width = $ARGV[$i+1];
+    #   $i+=1;
+    }elsif ($ARGV[$i] =~ /--sleep/) {
+      $sleep_time = $ARGV[$i+1];
+      $i+=1;
+    }else{
+      print "$/Invalid option or parameter: $ARGV[$i]$/$/";
+      usage;
+    }
+  }
   
   my $old_stats = undef;
   my $new_stats = &get_stats;
@@ -128,11 +147,8 @@ sub main
     'r_svctm', 'w_svctm', 'a_svctm'
   );
   
-  my $device = shift @ARGV;
   die("Unknown device") unless defined($new_stats->{$device});
 
-  my $sleep_time = 1;
-  $sleep_time = shift @ARGV if $NUM_ARGS>1;
 
   while(1)
   {
