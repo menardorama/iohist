@@ -130,7 +130,9 @@ sub main
   
   my $device = shift @ARGV;
   die("Unknown device") unless defined($new_stats->{$device});
-  my $sleep_time = shift @ARGV if $NUM_ARGS>1;
+
+  my $sleep_time = 1;
+  $sleep_time = shift @ARGV if $NUM_ARGS>1;
 
   while(1)
   {
