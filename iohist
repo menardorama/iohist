@@ -2,9 +2,32 @@
 
 use strict;
 use Data::Dumper;
+use Cwd 'abs_path';
 
+#--------------------------------------------------------------------------
+# GLOBAL Definitions
+#--------------------------------------------------------------------------
+my ($SCRIPT_DIR,$SCRIPT_NAME) = ( abs_path($0) =~ /(.*\/)*(.*)$/);
+my $HEADER="SCRIPT: $SCRIPT_DIR$SCRIPT_NAME";
 my $hist_width = 20;
 my $hist_max = 37;
+
+#--------------------------------------------------------------------------
+# FUNCTION      usage
+# SYNTAX        usage 
+# DESCRIPTION   displays usage
+#--------------------------------------------------------------------------
+sub usage
+{
+print "$/**************************************************************************$/";
+print "Usage:$/";
+print " $SCRIPT_NAME device [sleep_time]$/";
+print "$/";
+print "**************************************************************************$/";
+print "$/";
+
+exit 1;
+}
 
 sub parse_stat
 {
@@ -89,6 +112,11 @@ sub max
 
 sub main
 {
+  my $NUM_ARGS = scalar @ARGV;
+  if (($NUM_ARGS == 0)||($ARGV[0] =~ /-h/)||($ARGV[0] =~ /help/)){
+      usage;
+  }
+  
   my $old_stats = undef;
   my $new_stats = &get_stats;
 
@@ -102,10 +130,11 @@ sub main
   
   my $device = shift @ARGV;
   die("Unknown device") unless defined($new_stats->{$device});
+  my $sleep_time = shift @ARGV if $NUM_ARGS>1;
 
   while(1)
   {
-    sleep 1;
+    sleep $sleep_time;
     $old_stats = $new_stats;
     $new_stats = &get_stats;
 
